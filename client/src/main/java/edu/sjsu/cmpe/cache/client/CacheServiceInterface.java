@@ -1,5 +1,9 @@
 package edu.sjsu.cmpe.cache.client;
 
+import java.util.Collection;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
 /**
  * Cache Service Interface
  * 
