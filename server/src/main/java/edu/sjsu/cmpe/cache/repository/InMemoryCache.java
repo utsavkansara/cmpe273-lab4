@@ -20,8 +20,8 @@ public class InMemoryCache implements CacheInterface {
     @Override
     public Entry save(Entry newEntry) {
         checkNotNull(newEntry, "newEntry instance must not be null");
-        inMemoryMap.putIfAbsent(newEntry.getKey(), newEntry);
-
+        //inMemoryMap.putIfAbsent(newEntry.getKey(), newEntry);
+        inMemoryMap.put(newEntry.getKey(), newEntry);
         return newEntry;
     }
 
@@ -35,5 +35,12 @@ public class InMemoryCache implements CacheInterface {
     @Override
     public List<Entry> getAll() {
         return new ArrayList<Entry>(inMemoryMap.values());
+    }
+
+    @Override
+    public void remove(Long key) {
+        checkArgument(key > 0,
+                "Key was %s but expected greater than zero value", key);
+        inMemoryMap.remove(key);
     }
 }

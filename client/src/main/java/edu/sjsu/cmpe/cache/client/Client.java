@@ -1,62 +1,37 @@
 package edu.sjsu.cmpe.cache.client;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.google.common.hash.Hashing;
-
 public class Client {
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Connected to Client...");
-        //Creating list of cache servers where data is to be cached
-        List<CacheServiceInterface> cacheServerList = new ArrayList<CacheServiceInterface>();
-        cacheServerList.add(new DistributedCacheService("http://localhost:3000"));
-        cacheServerList.add(new DistributedCacheService("http://localhost:3001"));
-        cacheServerList.add(new DistributedCacheService("http://localhost:3002"));
 
-        //creating list of objects which will be cached onto the server
-        List<String> objectList = new ArrayList<String>();
-        objectList.add(" ");
-        objectList.add("a");
-        objectList.add("b");
-        objectList.add("c");
-        objectList.add("d");
-        objectList.add("e");
-        objectList.add("f");
-        objectList.add("g");
-        objectList.add("h");
-        objectList.add("i");
-        objectList.add("j");
+        System.out.println("Starting Cache Client...");
 
-        //Cache data into cache servers using Hashing Function which uses MD5 to generate hash value
-        System.out.println("Caching data..");
-        int serverKey = 0;
-        for(int objectKey=1;objectKey<=objectList.size()-1;objectKey++)
-        {
-
-            serverKey = Hashing.consistentHash(Hashing.md5().hashString(Integer.toString(objectKey)), cacheServerList.size());
-            CacheServiceInterface CacheServerToPutData = cacheServerList.get(serverKey);
-            CacheServerToPutData.put(objectKey,objectList.get(objectKey));
-            System.out.println("Caching => Key=" + objectKey + " and Value="+ objectList.get(objectKey) + " routed to Cache server at localhost://300"+ serverKey);
+        CRDTClient crdtClient = new CRDTClient();
+        System.out.println("PUT key: 1  -----> value: a on all three servers via asynchronous call");
+        boolean isResponseSuccessful = crdtClient.put(1, "a");
+        if (isResponseSuccessful) {
+            System.out.println("PUT key: 1  -----> value: a was successful");
+        } else {
+            System.out.println("PUT key: 1  -----> value: a was unsuccessful");
         }
+        System.out.println("Sleeping thread for 30 seconds and stop server A");
+        Thread.sleep(30000);
 
-        System.out.println(" Data Cached .. ");
-
-        System.out.println(" ");
-
-        //Fetching data from the cache server using same hash function on the key
-        System.out.println("GET data from Cache... ");
-
-        for(int objectKey=1;objectKey<=objectList.size()-1;objectKey++){
-            serverKey = Hashing.consistentHash(Hashing.md5().hashString(Integer.toString(objectKey)), cacheServerList.size());
-            CacheServiceInterface CacheServerToFetchData = cacheServerList.get(serverKey);
-            String fetchedValue = CacheServerToFetchData.get(objectKey);
-            System.out.println("Fetching data => Fetched Key=" + objectKey + " and Value="+ fetchedValue + " from Cache server at localhost://300"+ serverKey);
+        System.out.println("PUT key: 1  -----> value: b on all three servers via asynchronous call");
+        isResponseSuccessful = crdtClient.put(1, "b");
+        if (isResponseSuccessful) {
+            System.out.println("PUT key: 1  -----> value: b was successful");
+        } else {
+            System.out.println("PUT key: 1  -----> value: b was unsuccessful");
         }
+        System.out.println("Sleeping thread for 30 seconds and restart server A");
+        Thread.sleep(30000);
 
-        System.out.println("\nFetched Data .. ");
-        System.out.println("Exiting from Cache Client...");
+        System.out.println("GET key: 1  -----> value from all three servers via asynchronous call");
+        String cachedValue = crdtClient.get(1);
+        System.out.println("GET key: 1  -----> value: "+ cachedValue + " from all three cache servers");
 
+
+        System.out.println("Existing Cache Client...");
     }
 }

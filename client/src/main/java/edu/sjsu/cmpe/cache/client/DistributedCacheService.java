@@ -10,10 +10,15 @@ import com.mashape.unirest.http.exceptions.UnirestException;
  * 
  */
 public class DistributedCacheService implements CacheServiceInterface {
+
     private final String cacheServerUrl;
 
     public DistributedCacheService(String serverUrl) {
         this.cacheServerUrl = serverUrl;
+    }
+
+    public String getCacheServerUrl() {
+        return cacheServerUrl;
     }
 
     /**
@@ -53,6 +58,18 @@ public class DistributedCacheService implements CacheServiceInterface {
 
         if (response.getCode() != 200) {
             System.out.println("Failed to add to the cache.");
+        }
+    }
+
+    @Override
+    public void remove(long key) {
+        HttpResponse<JsonNode> response = null;
+        try {
+            response = Unirest.delete(this.cacheServerUrl + "/cache/{key}")
+                    .header("accept", "application/json")
+                    .routeParam("key", Long.toString(key)).asJson();
+        } catch (UnirestException e) {
+            System.err.println(e);
         }
     }
 }
